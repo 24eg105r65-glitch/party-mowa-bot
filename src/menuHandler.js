@@ -237,10 +237,10 @@ export function extractNaturalEntities(text) {
     extracted.occasion = 'Other Celebration';
   }
 
-  // 4. Date patterns (e.g. "20 September", "Tomorrow", "Today", "15th Oct", "31-08-2026")
+  // 4. Date patterns (e.g. "25/09/26", "20 September", "Tomorrow", "Today", "15th Oct", "31-08-2026")
   const dateRegex1 = /\b(\d{1,2}(?:st|nd|rd|th)?\s+(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|sept|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)(?:\s+(?:20\d{2}))?)\b/i;
   const dateRegex2 = /\b((?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|sept|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+\d{1,2}(?:st|nd|rd|th)?(?:\s+(?:20\d{2}))?)\b/i;
-  const dateRegex3 = /\b(\d{1,2}[/-]\d{1,2}(?:[/-](?:20\d{2}|\d{2}))?)\b/;
+  const dateRegex3 = /\b(\d{1,2}[/.-]\d{1,2}(?:[/.-](?:20\d{2}|\d{2}))?)\b/;
   const dateRegex4 = /\b(tomorrow|today|day after tomorrow|this weekend|this sunday|this saturday|next sunday|next saturday|next week|next month)\b/i;
   const dateRegex5 = /\b(\d{1,2}(?:st|nd|rd|th))\b/i;
 
@@ -527,7 +527,7 @@ function getEstimatedBillingAndDatePrompt(session) {
     `Final booking will be confirmed by our team after checking slot availability.`;
 
   const timePrompt = `Almost done! ❤️\n\n` +
-    `📅 *What date and ⏰ time slot would you prefer for your celebration?*\n\n` +
+    `📅 *Please provide your preferred Celebration Date (in DD/MM/YY format, e.g. 25/09/26) and ⏰ Time Slot:*\n\n` +
     `Here are our available theatre slot timings:\n\n` +
     `*1. ROSSET THEATRE (Up to 15 People)*\n` +
     `• 10:00 AM - 12:30 PM\n` +
@@ -550,7 +550,7 @@ function getEstimatedBillingAndDatePrompt(session) {
     `• 07:30 PM - 09:00 PM\n` +
     `• 09:30 PM - 11:00 PM\n` +
     `• 11:30 PM - 01:00 AM\n\n` +
-    `*(Reply with your date & preferred slot timing)*`;
+    `*(Reply with your date in DD/MM/YY format & preferred slot timing, e.g. 25/09/26 7:00 PM)*`;
 
   responses.push({ type: 'text', text: billingText });
   responses.push({ type: 'text', text: timePrompt });
@@ -988,38 +988,59 @@ export function handleIncomingMessage(senderPhone, incomingText, pushName = '') 
     }
 
     // Rule 12: Must NOT say "Your slot is available."
-    const timeAck = `Got it! ❤️\n\nI'll pass your preferred celebration date and time to our team for availability checking.\n\nPlease share your:\n\n👤 Name`;
+    const timeAck = `Got it! ❤️\n\n` +
+      `I'll pass your preferred celebration date and time to our team for availability checking.\n\n` +
+      `Please share your:\n\n` +
+      `👤 *Name and 📞 10-digit WhatsApp Number*\n` +
+      `*(e.g. Rahul - 9876543210)*`;
 
-    session.step = 'STAGE_7_COLLECT_NAME';
+    session.step = 'STAGE_7_COLLECT_NAME_AND_PHONE';
     return [{ type: 'text', text: timeAck }];
   }
 
   // ==========================================
-  // STAGE 7 — CUSTOMER NAME & PHONE CHECK
+  // STAGE 7 — CUSTOMER NAME & PHONE (Combined Step)
   // ==========================================
-  if (session.step === 'STAGE_7_COLLECT_NAME') {
-    const ent = extractNaturalEntities(text);
-    if (ent.phone) {
-      session.data.phone = ent.phone;
+  if (session.step === 'STAGE_7_COLLECT_NAME_AND_PHONE' || session.step === 'STAGE_7_COLLECT_NAME') {
+    // 1. Check for 10-digit phone number in the input
+    const phoneMatch = text.match(/(?:\+?91[\s-]?)?([6-9]\d{9})/);
+    if (phoneMatch) {
+      session.data.phone = cleanPhoneNumber(phoneMatch[0]);
     }
-    const cleanName = text.replace(/(?:\+?91[\s-]?)?[6-9]\d{9}/g, '').replace(/[\d+]/g, '').trim();
-    session.data.name = cleanName || text;
 
-    // Rule 13: If valid 10-digit phone is already available, jump to Summary
+    // 2. Extract name by stripping out the phone number and common delimiters
+    let cleanName = text
+      .replace(/(?:\+?91[\s-]?)?[6-9]\d{9}/g, '')
+      .replace(/[\d+]/g, '')
+      .replace(/[,:\-|/]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (cleanName && cleanName.length >= 2) {
+      session.data.name = cleanName;
+    } else if (!session.data.name && pushName && pushName !== 'Customer') {
+      session.data.name = pushName;
+    }
+
+    // If valid 10-digit phone is already available, jump straight to Summary!
     if (isValidPhoneNumber(session.data.phone)) {
+      if (!session.data.name) {
+        session.data.name = (pushName && pushName !== 'Customer') ? pushName : 'Valued Guest';
+      }
       session.step = 'STAGE_9_FINAL_SUMMARY';
       return [{ type: 'text', text: getFinalEnquirySummary(session) }];
     } else {
+      // User gave name only, ask for 10-digit WhatsApp number
       session.step = 'STAGE_8_COLLECT_PHONE';
       return [{
         type: 'text',
-        text: `Thank you, ${session.data.name}! ❤️\n\nAnd what is the best 10-digit WhatsApp/contact number for our team to reach you? 📞\n\n*(e.g. 9876543210)*`
+        text: `Thank you, ${session.data.name || 'Valued Guest'}! ❤️\n\nAnd what is the best 10-digit WhatsApp/contact number for our team to reach you? 📞\n\n*(e.g. 9876543210)*`
       }];
     }
   }
 
   // ==========================================
-  // STAGE 8 — COLLECT PHONE (Strict 10-digit validation)
+  // STAGE 8 — COLLECT PHONE (Strict 10-digit validation fallback)
   // ==========================================
   if (session.step === 'STAGE_8_COLLECT_PHONE') {
     const validPhone = cleanPhoneNumber(text);
@@ -1088,7 +1109,7 @@ export function handleIncomingMessage(senderPhone, incomingText, pushName = '') 
       session.step = 'STAGE_EDIT_DATE';
       return [{
         type: 'text',
-        text: `📅 Please enter your updated celebration date (e.g. 25th October, Tomorrow):`
+        text: `📅 Please enter your updated celebration date in DD/MM/YY format (e.g. 25/09/26):`
       }];
     } else if (cleaned === '2' || cleaned.includes('time') || cleaned.includes('slot')) {
       session.step = 'STAGE_EDIT_TIME';
@@ -1234,12 +1255,17 @@ export function handleIncomingMessage(senderPhone, incomingText, pushName = '') 
   }
 
   if (session.step === 'STAGE_EDIT_CONTACT') {
-    const validPhone = cleanPhoneNumber(text);
-    if (validPhone) {
-      session.data.phone = validPhone;
+    const phoneMatch = text.match(/(?:\+?91[\s-]?)?([6-9]\d{9})/);
+    if (phoneMatch) {
+      session.data.phone = cleanPhoneNumber(phoneMatch[0]);
     }
-    const cleanName = text.replace(/[\d+]/g, '').trim();
-    if (cleanName.length >= 2) {
+    const cleanName = text
+      .replace(/(?:\+?91[\s-]?)?[6-9]\d{9}/g, '')
+      .replace(/[\d+]/g, '')
+      .replace(/[,:\-|/]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (cleanName && cleanName.length >= 2) {
       session.data.name = cleanName;
     }
     session.step = 'STAGE_9_FINAL_SUMMARY';

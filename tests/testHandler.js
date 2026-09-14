@@ -82,35 +82,37 @@ console.log('🧪 Running Party Mowa Final WhatsApp Sales & Booking Bot Test Sui
   assert.ok(res6[0].text.includes('ESTIMATED TOTAL*\n\n₹4,899'));
   assert.ok(res6[0].text.includes('Final booking will be confirmed by our team after checking slot availability.'));
   
-  // Verify schedule timings in time prompt
+  // Verify schedule timings and DD/MM/YY format in time prompt
+  assert.ok(res6[1].text.includes('DD/MM/YY format'));
   assert.ok(res6[1].text.includes('ROSSET THEATRE (Up to 15 People)'));
   assert.ok(res6[1].text.includes('10:00 AM - 12:30 PM'));
   assert.ok(res6[1].text.includes('LUNA THEATRE'));
   assert.ok(res6[1].text.includes('10:30 AM - 01:00 PM'));
   assert.ok(res6[1].text.includes('MAGICAL SCREEN (270° DEGREE)'));
   assert.ok(res6[1].text.includes('09:00 AM - 10:30 AM'));
-  console.log('✅ Stage 6 Passed: Dynamic estimated billing (₹4,899) and detailed slot timings');
+  console.log('✅ Stage 6 Passed: Dynamic estimated billing (₹4,899) and DD/MM/YY slot timing prompt');
 
-  // Step 7: Customer provides Date & Time ("20 September 07:30 PM - 10:00 PM") -> Bot asks Name
-  const res7 = handleIncomingMessage(user, '20 September 07:30 PM - 10:00 PM', 'Rahul');
+  // Step 7: Customer provides Date & Time in DD/MM/YY format ("25/09/26 07:30 PM - 10:00 PM") -> Bot asks Name and Phone together
+  const res7 = handleIncomingMessage(user, '25/09/26 07:30 PM - 10:00 PM', 'Rahul');
   assert.strictEqual(res7.length, 1);
   assert.ok(res7[0].text.includes('I\'ll pass your preferred celebration date and time to our team'));
-  assert.ok(res7[0].text.includes('👤 Name'));
+  assert.ok(res7[0].text.includes('👤 *Name and 📞 10-digit WhatsApp Number*'));
   assert.ok(!res7[0].text.includes('slot is confirmed'));
-  console.log('✅ Stage 7 Passed: Date & Time acknowledged without false availability promise');
+  console.log('✅ Stage 7 Passed: Date (DD/MM/YY) & Time acknowledged and Name + Phone requested in a single step');
 
-  // Step 8: Customer gives Name -> Phone already in JID so bot jumps straight to Final Summary
-  const res8 = handleIncomingMessage(user, 'Rahul', 'Rahul');
+  // Step 8: Customer gives Name and Phone together in one single message -> Bot jumps straight to Final Summary
+  const res8 = handleIncomingMessage(user, 'Rahul - 9876543210', 'Rahul');
   assert.strictEqual(res8.length, 1);
   assert.ok(res8[0].text.includes('❤️ *Your Party Mowa Enquiry*'));
   assert.ok(res8[0].text.includes('👤 Name: Rahul'));
-  assert.ok(res8[0].text.includes('📅 Date: 20 September'));
+  assert.ok(res8[0].text.includes('📞 Contact: +91 9876543210'));
+  assert.ok(res8[0].text.includes('📅 Date: 25/09/26'));
   assert.ok(res8[0].text.includes('⏰ Preferred Time: 07:30 PM - 10:00 PM'));
   assert.ok(res8[0].text.includes('👥 Guests: 8'));
   assert.ok(res8[0].text.includes('🎬 Selected Experience: Luna'));
   assert.ok(res8[0].text.includes('Estimated Total*\n\n₹4,899'));
   assert.ok(res8[0].text.includes('1️⃣ ✅ Confirm Details'));
-  console.log('✅ Stage 8 Passed: Final Enquiry Summary with auto-detected phone');
+  console.log('✅ Stage 8 Passed: Name & 10-Digit Phone collected together in ONE single step with instant Final Summary');
 
   // Step 9: Customer confirms details (Option 1) -> Handover to Team with urgent contact & stop bot note
   const res9 = handleIncomingMessage(user, '1', 'Rahul');
@@ -130,7 +132,7 @@ console.log('🧪 Running Party Mowa Final WhatsApp Sales & Booking Bot Test Sui
 }
 
 // ----------------------------------------------------
-// TEST 2: 270° Magical Screening Flow (Couple, No add-ons) & Strict Phone Validation
+// TEST 2: 270° Magical Screening Flow & Combined Name+Phone on LID Device
 // ----------------------------------------------------
 {
   resetSessions();
@@ -150,27 +152,21 @@ console.log('🧪 Running Party Mowa Final WhatsApp Sales & Booking Bot Test Sui
   const resBilling = handleIncomingMessage(userLid, '2', 'PK');
   assert.ok(resBilling[0].text.includes('No problem at all! ❤️'));
   assert.ok(resBilling[1].text.includes('ESTIMATED TOTAL*\n\n₹2,499'));
-  assert.ok(resBilling[2].text.includes('What date and ⏰ time slot would you prefer'));
+  assert.ok(resBilling[2].text.includes('DD/MM/YY format'));
 
-  // Provide Date & Time
-  handleIncomingMessage(userLid, '15 Oct 05:30 PM - 07:00 PM', 'PK');
+  // Provide Date (DD/MM/YY) & Time
+  const resPrompt = handleIncomingMessage(userLid, '15/10/26 05:30 PM - 07:00 PM', 'PK');
+  assert.ok(resPrompt[0].text.includes('👤 *Name and 📞 10-digit WhatsApp Number*'));
 
-  // Provide Name -> LID user lacks phone, so bot asks for phone
-  const resPhonePrompt = handleIncomingMessage(userLid, 'Pushkaran', 'PK');
-  assert.ok(resPhonePrompt[0].text.includes('best 10-digit WhatsApp/contact number'));
-
-  // Test Invalid Phone (less than 10 digits or starting with 1-5)
-  const resInvalid = handleIncomingMessage(userLid, '12345', 'PK');
-  assert.ok(resInvalid[0].text.includes('Please enter a valid 10-digit mobile number'));
-
-  // Provide Valid 10-digit Phone -> Shows Summary
-  const resSummary = handleIncomingMessage(userLid, '8328261609', 'PK');
+  // Provide Name and Phone combined in 1 step: "Pushkaran 8328261609"
+  const resSummary = handleIncomingMessage(userLid, 'Pushkaran 8328261609', 'PK');
   assert.ok(resSummary[0].text.includes('❤️ *Your Party Mowa Enquiry*'));
   assert.ok(resSummary[0].text.includes('👤 Name: Pushkaran'));
   assert.ok(resSummary[0].text.includes('+91 8328261609'));
+  assert.ok(resSummary[0].text.includes('📅 Date: 15/10/26'));
   assert.ok(resSummary[0].text.includes('Selected Experience: 270° Magical Screening'));
   assert.ok(resSummary[0].text.includes('₹2,499'));
-  console.log('✅ 270° Couple Flow & Strict 10-Digit Phone Validation Passed');
+  console.log('✅ 270° Couple Flow & 1-Step Combined Name+Phone on LID Device Passed');
 }
 
 // ----------------------------------------------------
