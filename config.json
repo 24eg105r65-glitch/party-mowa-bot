@@ -1,0 +1,61 @@
+{
+  "businessName": "PARTY MOWA - Private Theatres",
+  "location": {
+    "name": "Party Mowa Private Theatres - Madhapur, Hyderabad",
+    "mapUrl": "https://share.google/pWQADWZ4trvYKwIVc"
+  },
+  "theatres": {
+    "270": {
+      "name": "270° Magical Screening",
+      "basePrice": 2499,
+      "baseGuests": 2,
+      "extraPersonPrice": 350,
+      "duration": "1.5 Hour Slot",
+      "description": "A private cinematic celebration experience with an immersive 270° screen.",
+      "image": "media/celestial.jpg"
+    },
+    "luna": {
+      "name": "Luna Private Theatre",
+      "basePrice": 2499,
+      "baseGuests": 4,
+      "extraPersonPrice": 350,
+      "duration": "2.5 Hour Slot",
+      "description": "Luxury private theatre experience.",
+      "image": "media/luna.jpg"
+    },
+    "rosset": {
+      "name": "Rosset Private Theatre",
+      "basePrice": 2499,
+      "baseGuests": 4,
+      "extraPersonPrice": 350,
+      "duration": "2.5 Hour Slot",
+      "description": "Elegant ambient celebration theatre.",
+      "image": "media/rosset.jpg"
+    }
+  },
+  "cakeFlavours": [
+    "Vanilla",
+    "Chocolate",
+    "Butterscotch",
+    "Pineapple",
+    "Black Forest"
+  ],
+  "addons": [
+    { "id": "cinematic_entry", "name": "Cinematic Entry", "price": 2000 },
+    { "id": "photo_video_30m", "name": "30 Min Photography & Videography", "price": 1000 },
+    { "id": "photo_video_1h", "name": "1 Hour Photography & Videography", "price": 2000 },
+    { "id": "photo_clippings", "name": "Photo Clippings", "price": 349 },
+    { "id": "bouquet", "name": "Bouquet", "price": 449 },
+    { "id": "single_rose", "name": "Single Rose", "price": 49 },
+    { "id": "rose_petal_heart", "name": "Rose Petal Heart on Table", "price": 249 },
+    { "id": "bubble_entry", "name": "Bubble Entry", "price": 299 },
+    { "id": "candle_pathway", "name": "Candle Pathway", "price": 299 },
+    { "id": "rose_petal_pathway", "name": "Rose Petal Pathway", "price": 599 },
+    { "id": "led_number", "name": "LED Number", "price": 99 },
+    { "id": "party_props", "name": "Party Props", "price": 199 },
+    { "id": "outdoor_fog", "name": "Outdoor Fog", "price": 750 },
+    { "id": "reel_editing", "name": "Reel Editing", "price": 800 }
+  ],
+  "googleSheetsWebhookUrl": "https://script.google.com/macros/s/AKfycbyt8lbBWV4UEK64LCRcR99rFTBVBQwaL4PXdQv_x2ofO3Pb58vxVTzwv8PhYQBCzM0/exec",
+  "ignoreGroups": true
+}

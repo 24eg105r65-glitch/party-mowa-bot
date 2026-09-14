@@ -1,0 +1,114 @@
+{
+  "business": {
+    "name": "Party Mowa",
+    "tagline": "Private Theatre & Celebrations",
+    "description": "Exclusive private mini-theatres in Hyderabad for birthdays, anniversaries, romantic dates, and movie binge-watching with 4K big-screen visuals and Dolby Atmos sound.",
+    "location": "Madhapur / Jubilee Hills, Hyderabad, Telangana",
+    "contactNumber": "+91 8328261609"
+  },
+  "theatres": [
+    {
+      "id": "luna",
+      "name": "LUNA",
+      "subtitle": "Luxury VIP Experience",
+      "capacity": "Up to 10 People",
+      "photos": [
+        "media/luna.jpg",
+        "media/luna2.jpg"
+      ],
+      "pricing": {
+        "3_hours": {
+          "basePrice": 1999,
+          "baseGuests": 4,
+          "extraPersonPrice": 350
+        },
+        "1.5_hours": {
+          "basePrice": 1199,
+          "baseGuests": 4,
+          "extraPersonPrice": 200
+        }
+      },
+      "slots": {
+        "3_hours": [
+          "10:00am - 1:00pm",
+          "1:30pm - 4:30pm",
+          "7:00pm - 10:00pm",
+          "10:30pm - 1:00am"
+        ],
+        "1.5_hours": [
+          "5:00pm - 6:30pm"
+        ]
+      }
+    },
+    {
+      "id": "rosset",
+      "name": "Rosset",
+      "subtitle": "Cozy Ambient Celebration",
+      "capacity": "Up to 10 People",
+      "photos": [
+        "media/rosset.jpg"
+      ],
+      "pricing": {
+        "3_hours": {
+          "basePrice": 1999,
+          "baseGuests": 4,
+          "extraPersonPrice": 350
+        },
+        "1.5_hours": {
+          "basePrice": 1199,
+          "baseGuests": 4,
+          "extraPersonPrice": 200
+        }
+      },
+      "slots": {
+        "3_hours": [
+          "9:30am - 12:30pm",
+          "1:00pm - 4:00pm",
+          "6:30pm - 9:30pm",
+          "10:00pm - 1:00am"
+        ],
+        "1.5_hours": [
+          "4:30pm - 6:00pm"
+        ]
+      }
+    },
+    {
+      "id": "celestial",
+      "name": "Celestial",
+      "subtitle": "Private Screening & Mini-Celebration",
+      "capacity": "Up to 10 People",
+      "photos": [
+        "media/celestial.jpg",
+        "media/celestial2.jpg",
+        "media/celestial3.jpg",
+        "media/celestial4.jpg",
+        "media/celestial5.jpg"
+      ],
+      "pricing": {
+        "1.5_hours": {
+          "basePrice": 1199,
+          "baseGuests": 4,
+          "extraPersonPrice": 200
+        }
+      },
+      "slots": {
+        "1.5_hours": [
+          "9:00am - 10:30am",
+          "11:00am - 12:30pm",
+          "1:00pm - 2:30pm",
+          "3:00pm - 4:30pm",
+          "5:30pm - 7:00pm",
+          "7:30pm - 9:00pm",
+          "9:30pm - 11:00pm",
+          "11:30pm - 1:00am"
+        ]
+      }
+    }
+  ],
+  "addOns": [
+    { "id": "fog_entry", "name": "Cold Fire / Fog Entry Effect", "price": 999 },
+    { "id": "custom_cake", "name": "Custom Birthday / Anniversary Cake", "price": 899 },
+    { "id": "photography", "name": "Professional Photography & Reel Video", "price": 1499 },
+    { "id": "snacks_combo", "name": "Party Snacks & Drinks Combo", "price": 499 }
+  ]
+}

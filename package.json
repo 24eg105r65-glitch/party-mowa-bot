@@ -1,0 +1,21 @@
+{
+  "name": "whatsapp-enquiry-bot",
+  "version": "1.0.0",
+  "description": "Automated WhatsApp Menu and Enquiry Bot",
+  "main": "src/bot.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/bot.js",
+    "dev": "node --watch src/bot.js",
+    "test": "node tests/testHandler.js",
+    "reset-session": "node -e \"const fs = require('fs'); fs.rmSync('./auth_info', { recursive: true, force: true }); console.log('Session cleared! Run npm start to scan with a new number.');\""
+  },
+  "keywords": ["whatsapp", "bot", "auto-reply", "enquiry", "catalog"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.13",
+    "pino": "^9.6.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
