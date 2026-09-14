@@ -1,3 +1,4 @@
+import http from 'http';
 import { makeWASocket, useMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys';
 import qrcode from 'qrcode-terminal';
 import pino from 'pino';
@@ -5,6 +6,16 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { handleIncomingMessage, loadConfig, pauseBotForUser } from './menuHandler.js';
+
+// Start a lightweight HTTP server so cloud hosts (Render, Railway, Koyeb) stay healthy
+const PORT = process.env.PORT || 3000;
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Party Mowa Bot is active and running!\n');
+});
+server.listen(PORT, () => {
+  console.log(`🌐 Cloud health-check server listening on port ${PORT}`);
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
