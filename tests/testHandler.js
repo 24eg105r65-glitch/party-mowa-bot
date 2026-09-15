@@ -315,4 +315,37 @@ console.log('🧪 Running Party Mowa Final WhatsApp Sales & Booking Bot Test Sui
   console.log('✅ CSV Spreadsheet Logging Passed: Booking leads successfully recorded to leads.csv');
 }
 
+// ----------------------------------------------------
+// TEST 9: Option 4 'Other Celebration' & Custom Occasion Specification
+// ----------------------------------------------------
+{
+  resetSessions();
+  const user = '919876543210@s.whatsapp.net';
+  
+  // 1. Initial Greeting
+  const resWelcome = handleIncomingMessage(user, 'hi', 'Anita');
+  assert.ok(resWelcome[0].text.includes('Please select either option or occasion'));
+
+  // 2. Invalid input test
+  const resInvalid = handleIncomingMessage(user, 'xyz', 'Anita');
+  assert.ok(resInvalid[0].text.includes('Please select either option or occasion'));
+
+  // 3. User chooses Option 4 (Other Celebration)
+  const resOtherPrompt = handleIncomingMessage(user, '4', 'Anita');
+  assert.ok(resOtherPrompt[0].text.includes('Please specify your celebration occasion'));
+
+  // 4. User specifies custom occasion
+  const resCustom = handleIncomingMessage(user, 'Baby Shower', 'Anita');
+  assert.ok(resCustom[0].text.includes('How many people will be attending'));
+
+  // 5. Test direct custom occasion entry
+  resetSessions();
+  handleIncomingMessage(user, 'hi', 'Anita');
+  const resDirectCustom = handleIncomingMessage(user, 'Farewell Party', 'Anita');
+  assert.ok(resDirectCustom[0].text.includes('How many people will be attending'));
+
+  console.log('✅ Option 4 & Custom Occasion Specification Passed');
+}
+
 console.log('\n🎉 ALL PARTY MOWA BOT RULES, VIDEOS, TIMINGS, EDIT, CAPACITY, SHEETS & VALIDATION TESTS PASSED! 🚀');
+

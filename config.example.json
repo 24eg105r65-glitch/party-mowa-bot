@@ -1,38 +1,38 @@
 {
-  "businessName": "PARTY MOWA - Private Theatres",
-  "supportPhone": "9063426658",
+  "businessName": "Your Business Name (e.g. Acme Private Theatres / Studio)",
+  "supportPhone": "9876543210",
   "maxGuestCapacity": 15,
   "location": {
-    "name": "Party Mowa Private Theatres - Madhapur, Hyderabad",
-    "mapUrl": "https://share.google/pWQADWZ4trvYKwIVc"
+    "name": "Acme Celebrations - Downtown Branch",
+    "mapUrl": "https://maps.google.com/?q=Your+Location"
   },
   "theatres": {
-    "270": {
-      "name": "270° Magical Screening",
+    "experience_1": {
+      "name": "Grand Experience Room",
       "basePrice": 2499,
       "baseGuests": 2,
       "extraPersonPrice": 350,
       "duration": "1.5 Hour Slot",
-      "description": "A private cinematic celebration experience with an immersive 270° screen.",
-      "image": "media/celestial.jpg"
+      "description": "Premium cinematic celebration experience.",
+      "image": "media/experience1.jpg"
     },
-    "luna": {
-      "name": "Luna Private Theatre",
+    "experience_2": {
+      "name": "Luxury Lounge",
       "basePrice": 2499,
       "baseGuests": 4,
       "extraPersonPrice": 350,
       "duration": "2.5 Hour Slot",
-      "description": "Luxury private theatre experience.",
-      "image": "media/luna.jpg"
+      "description": "Spacious luxury private lounge.",
+      "image": "media/experience2.jpg"
     },
-    "rosset": {
-      "name": "Rosset Private Theatre",
+    "experience_3": {
+      "name": "Royal Suite",
       "basePrice": 2499,
       "baseGuests": 4,
       "extraPersonPrice": 350,
       "duration": "2.5 Hour Slot",
-      "description": "Elegant ambient celebration theatre.",
-      "image": "media/rosset.jpg"
+      "description": "Elegant ambient celebration suite.",
+      "image": "media/experience3.jpg"
     }
   },
   "cakeFlavours": [
@@ -58,6 +58,6 @@
     { "id": "outdoor_fog", "name": "Outdoor Fog", "price": 750 },
     { "id": "reel_editing", "name": "Reel Editing", "price": 800 }
   ],
-  "googleSheetsWebhookUrl": "https://script.google.com/macros/s/AKfycbyt8lbBWV4UEK64LCRcR99rFTBVBQwaL4PXdQv_x2ofO3Pb58vxVTzwv8PhYQBCzM0/exec",
+  "googleSheetsWebhookUrl": "https://script.google.com/macros/s/YOUR_GOOGLE_APPS_SCRIPT_ID/exec",
   "ignoreGroups": true
 }

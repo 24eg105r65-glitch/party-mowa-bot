@@ -315,7 +315,7 @@ function getWelcomeMessage() {
     `2️⃣ Anniversary\n` +
     `3️⃣ Proposal\n` +
     `4️⃣ Other Celebration\n\n` +
-    `*(Reply with option number or occasion)*`;
+    `*(Please select either option or occasion)*`;
 }
 
 /**
@@ -590,6 +590,11 @@ function getFinalEnquirySummary(session) {
  * 15. HANDOVER MESSAGE
  */
 function getHandoverMessage() {
+  const config = loadConfig();
+  const supportPhone = config.supportPhone || '9063426658';
+  const locName = config.location?.name || 'Party Mowa Private Theatres - Madhapur';
+  const locUrl = config.location?.mapUrl ? `(${config.location.mapUrl})` : '';
+
   return `Perfect! ❤️\n\n` +
     `I've recorded all your celebration requirements.\n\n` +
     `Your enquiry has now been forwarded to our Party Mowa team.\n\n` +
@@ -599,10 +604,10 @@ function getHandoverMessage() {
     `✅ Guide you through the booking process\n` +
     `✅ Help you with the advance payment and confirmation\n\n` +
     `📞 Our team will call you shortly. Please pick the call so we can complete your booking.\n\n` +
-    `🚨 *If you have an urgent requirement, please contact: 9063426658.*\n\n` +
+    `🚨 *If you have an urgent requirement, please contact: ${supportPhone}.*\n\n` +
     `⚠️ Please note: Your slot is not confirmed yet. It will be confirmed only after our team checks availability and completes the booking process.\n\n` +
     `We look forward to celebrating with you at PARTY MOWA! ❤️\n\n` +
-    `📍 Location: Party Mowa Private Theatres - Madhapur (https://share.google/pWQADWZ4trvYKwIVc)\n\n` +
+    `📍 Location: ${locName} ${locUrl}\n\n` +
     `*(To stop bot chat, please send message: "stop bot")*`;
 }
 
@@ -762,13 +767,15 @@ export function handleIncomingMessage(senderPhone, incomingText, pushName = '') 
 
   // Rule 28: Stop automated messages after handover & give urgent contact info
   if (session && session.step === 'STATUS_TEAM_HANDOVER') {
+    const config = loadConfig();
+    const supportPhone = config.supportPhone || '9063426658';
     if (['restart', 'reset'].includes(cleaned)) {
       session = null;
       userSessions.delete(senderPhone);
     } else {
       return [{
         type: 'text',
-        text: `Our Party Mowa team has received your enquiry and will call you shortly on ${session.data.phone || 'your contact number'}! 😊\n\n🚨 *If you have an urgent requirement, please contact: 9063426658.*\n\n*(To stop bot chat, please send message: "stop bot" | Reply "restart" for fresh enquiry)*`
+        text: `Our Party Mowa team has received your enquiry and will call you shortly on ${session.data.phone || 'your contact number'}! 😊\n\n🚨 *If you have an urgent requirement, please contact: ${supportPhone}.*\n\n*(To stop bot chat, please send message: "stop bot" | Reply "restart" for fresh enquiry)*`
       }];
     }
   }
@@ -811,26 +818,39 @@ export function handleIncomingMessage(senderPhone, incomingText, pushName = '') 
   session.lastInteraction = Date.now();
 
   // ==========================================
-  // STAGE 1 — OCCASION (Transitions straight to GUESTS)
+  // STAGE 1 — OCCASION
   // ==========================================
   if (session.step === 'STAGE_1_OCCASION') {
     let occasion = '';
+    const isOtherChoice = cleaned === '4' || /^(other|other\s*celebration|4\s*other)$/i.test(cleaned);
+
     if (cleaned === '1' || cleaned.includes('birthday') || cleaned.includes('bday')) {
       occasion = 'Birthday';
     } else if (cleaned === '2' || cleaned.includes('anniversary')) {
       occasion = 'Anniversary';
     } else if (cleaned === '3' || cleaned.includes('proposal')) {
       occasion = 'Proposal';
-    } else if (cleaned === '4' || cleaned.includes('other') || cleaned.includes('celebration')) {
-      occasion = 'Other Celebration';
-    } else if (text.length > 2) {
-      occasion = text;
+    } else if (isOtherChoice) {
+      session.step = 'STAGE_1_SPECIFY_OCCASION';
+      return [{
+        type: 'text',
+        text: `🎉 *Please specify your celebration occasion:*\n\n*(e.g. Farewell, Baby Shower, Reunion, Promotion, Date Night)*`
+      }];
+    } else if (/^(?:4\s*[-:.]?\s*|other\s*[-:.]?\s*|other\s*celebration\s*[-:.]?\s*)(.+)$/i.test(text)) {
+      const match = text.match(/^(?:4\s*[-:.]?\s*|other\s*[-:.]?\s*|other\s*celebration\s*[-:.]?\s*)(.+)$/i);
+      occasion = match[1].trim();
+    } else if (
+      text.trim().length >= 4 &&
+      !/^\d+$/.test(text.trim()) &&
+      !/^(test|help|menu|info|options?|what|okay|ok|fine|xyz|abc)$/i.test(cleaned)
+    ) {
+      occasion = text.trim();
     }
 
     if (!occasion) {
       return [{
         type: 'text',
-        text: `Please select what you are celebrating: 🎉\n\n1️⃣ Birthday\n2️⃣ Anniversary\n3️⃣ Proposal\n4️⃣ Other Celebration`
+        text: `Please select either option or occasion: 🎉\n\n1️⃣ Birthday\n2️⃣ Anniversary\n3️⃣ Proposal\n4️⃣ Other Celebration\n\n*(Please select either option or occasion)*`
       }];
     }
 
@@ -840,6 +860,25 @@ export function handleIncomingMessage(senderPhone, incomingText, pushName = '') 
     return [{
       type: 'text',
       text: `Got it! 👌\n\n👥 How many people will be attending?`
+    }];
+  }
+
+  // ==========================================
+  // STAGE 1 — SPECIFY CUSTOM OCCASION (When Option 4/Other chosen)
+  // ==========================================
+  if (session.step === 'STAGE_1_SPECIFY_OCCASION') {
+    const customOccasion = text.trim();
+    if (customOccasion.length > 1) {
+      session.data.occasion = customOccasion;
+      session.step = 'STAGE_2_GUESTS';
+      return [{
+        type: 'text',
+        text: `Got it! 👌\n\n👥 How many people will be attending?`
+      }];
+    }
+    return [{
+      type: 'text',
+      text: `🎉 *Please specify your celebration occasion:*\n\n*(e.g. Farewell, Baby Shower, Reunion, Promotion, Date Night)*`
     }];
   }
 
